@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-
-
+import { getList, additem, updateitem, deleteitem } from './ListFunctions';
 class App extends Component {
 
   constructor(props) {
@@ -15,6 +14,23 @@ class App extends Component {
   }
 
   componentDidMount() {
+    // this.refs.name.focus();
+    this.getAll();
+  }
+
+  getAll = () => {
+    getList().then(data => {
+      this.setState(
+        {
+          datas: [...data],
+          act: 0
+        },
+        () => {
+          // console.log(this.state.datas)
+        }
+      )
+    })
+    this.refs.myForm.reset();
     this.refs.name.focus();
   }
 
@@ -27,27 +43,24 @@ class App extends Component {
       let data = {
         name, address
       }
-      datas.push(data);
+      additem(name,address).then(()=>{
+        datas.push(data);
+        this.getAll();
+      })
     }else{
-      datas[this.state.index].name=name;
-      datas[this.state.index].address=address;
+      updateitem(name, address, datas[this.state.index].id).then(()=>{
+        datas[this.state.index].name = name;
+        datas[this.state.index].address = address;
+        this.getAll();
+      })
     }
-    
-    this.setState({
-      datas : datas,
-      act : 0
-    });
-
-    this.refs.myForm.reset();
-    this.refs.name.focus();
   }
 
   fRemove = (i) =>{
     let datas = this.state.datas;
+    deleteitem(datas[i].id);
     datas.splice(i,1);
-    this.setState({
-      datas : datas
-    });
+    this.getAll();
   }
 
   fEdit = (i) =>{
